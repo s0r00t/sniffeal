@@ -2,47 +2,43 @@
 # -*- coding: utf-8 -*-
 
 '''
-sniff packets from interface en0 using python module scapy (2.3.1)
-generate led color for bhoreal in usb midi mode depending on packet port number
-send led number + color to PD patch boreal.pd
-in OSC format : /bhoreal/in lednumber ledcolor
-color is midi parameter so 0 to 127.
+Sniff packets from interface en0 using python module scapy (2.3.1)
+and generate led color for bhoreal in usb midi mode depending on packet port number
+
+Led are midi notes (0 to 63)
+Color is a midi parameter (velocity) so 0 to 127.
+
+To modify the network interface (wifi/ethernet), change it in the last code line.
+
+Uses mido to send MIDI messages directly in python.
+
 v0.3
 By Sam Neurohack
 LICENCE : CC 
 '''
  
-from OSC import OSCClient, OSCMessage
+import mido
+from mido import Message
 from time import sleep
 import types
 import random
 from scapy.all import *
 
-client = OSCClient()
-msg = OSCMessage()
+outport = mido.open_output('Arduino Leonardo')
 
 counter = 0
 
 def sendled(zzzport):
 	global counter
 	
-	zzz = zzzport % 127			
-								# zzz = led color
-	msg = OSCMessage()
-	msg.setAddress("/bhoreal/in")
-	msg.append(counter)
-	msg.append(zzz)
-	try:
-		client.sendto(msg, ('127.0.0.1', 9002))
-		msg.clearData()
-	except:
-		print 'Connection refused'
-		pass
+	zzz = zzzport % 127												# zzz = led color
+	msgout = mido.Message('note_on', note=counter, velocity=zzz)
+					
+	outport.send(msgout)
 	sleep(0.001)
 	counter += 1
 	if counter > 63:
 		counter = 0
-
 
 
 def print_summary(pkt):
