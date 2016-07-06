@@ -1,4 +1,5 @@
 """
+
 This is a virtual implementation of the BHOREAL MIDI controller.
 It depends on : wxPython, Mido, python-rtmidi (therefore, (lib)rtmidi)
 v0.1
@@ -14,11 +15,15 @@ def hue2rgb(hue):
     """
     This is a reimplementation in Python of the hue2rgb function
     used in the Bhoreal firmware to get colors
-    source : https://github.com/bhoreal/bhoreal/blob/master/firmware/bhoreal_slim_midi/Bhoreal.cpp#L745
+    source : https://github.com/mdeheras/Bhoreal/blob/master/Bhoreal_SLIM/BhorealSlim.cpp#L609 
     """
     #TODO: are those the same results than on the real controller?
+    if hue == 0:
+        return 0,0,0
+    elif hue >= 127:
+        return 255,255,255
     hue = hue << 3
-    
+
     if hue < 341:
         hue = (hue*3)/4
         r = 255 - hue
@@ -34,6 +39,7 @@ def hue2rgb(hue):
         r = hue
         g = 1
         b = 255 - hue
+
     return (r,g,b)
 
 def midiProcess(parent):
@@ -45,14 +51,14 @@ def midiProcess(parent):
 class mainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title)
-        self.SetBackgroundColour('black')
+        self.SetBackgroundColour((35,35,35))
         self.Show(True)
         self.sizer = wx.GridSizer(rows=8, cols=8, hgap=10, vgap=10)
         self.SetSizer(self.sizer)
         self.buttons = []
         for i in range(0,64):
             self.buttons.append(wx.Panel(self, id=i, style=wx.NO_BORDER))
-            self.buttons[i].SetBackgroundColour((35,35,35))
+            self.buttons[i].SetBackgroundColour('black')
             self.buttons[i].Bind(wx.EVT_LEFT_UP, self.onButtonDrop)
             self.buttons[i].Bind(wx.EVT_LEFT_DOWN, self.onButtonClick)
             self.sizer.Add(self.buttons[i],1,wx.EXPAND)
@@ -66,6 +72,7 @@ class mainWindow(wx.Frame):
         self.port = mido.open_ioport("Arduino Leonardo",virtual=True,callback=self.onInput)
 
     def onButtonClick(self, event):
+        #TODO: visual feedback? (blue border?)
         self.port.send(mido.Message('note_on', note=event.Id, velocity=64))
 
     def onButtonDrop(self, event):
