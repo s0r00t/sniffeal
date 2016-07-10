@@ -30,38 +30,38 @@ def print_summary(pkt):
         ip_src=pkt[IP].src
         ip_dst=pkt[IP].dst
 
-    if TCP in pkt:
-        tcp_sport=pkt[TCP].sport
-        tcp_dport=pkt[TCP].dport
+        if TCP in pkt:
+            tcp_sport=pkt[TCP].sport
+            tcp_dport=pkt[TCP].dport
 
-        if tcp_sport < 50000:
-            print " IP src " + str(ip_src) + " TCP sport " + str(tcp_sport)
-            out = tcp_sport
-        if tcp_dport < 50000:
-            print " IP dst " + str(ip_dst) + " TCP dport " + str(tcp_dport)
-            out = tcp_dport
+            if tcp_sport < 50000:
+                print " IP src " + str(ip_src) + " TCP sport " + str(tcp_sport)
+                out = tcp_sport
+            if tcp_dport < 50000:
+                print " IP dst " + str(ip_dst) + " TCP dport " + str(tcp_dport)
+                out = tcp_dport
 
-    if UDP in pkt:
-        udp_sport=pkt[UDP].sport
-        udp_dport=pkt[UDP].dport
+        if UDP in pkt:
+            udp_sport=pkt[UDP].sport
+            udp_dport=pkt[UDP].dport
 
-        if udp_sport < 50000:
-            print " IP src " + str(ip_src) + " UDP sport " + str(udp_sport)
-            out = udp_sport
+            if udp_sport < 50000:
+                print " IP src " + str(ip_src) + " UDP sport " + str(udp_sport)
+                out = udp_sport
 
-        if udp_dport < 50000:
-            print " IP dst " + str(ip_dst) + " UDP dport " + str(udp_dport)
-            out = udp_dport
+            if udp_dport < 50000:
+                print " IP dst " + str(ip_dst) + " UDP dport " + str(udp_dport)
+                out = udp_dport
 
-    if ARP in pkt and pkt[ARP].op in (1,2):
-        print " ARP"
-        out = 67
+        if ARP in pkt and pkt[ARP].op in (1,2):
+            print " ARP"
+            out = 67
 
-    outport.send(mido.Message('note_on', note=counter, velocity=out%127))
-    sleep(0.001)
-    counter += 1
-    if counter > 63:
-        counter = 0
+        outport.send(mido.Message('note_on', note=counter, velocity=out%127))
+        sleep(0.001)
+        counter += 1
+        if counter > 63:
+            counter = 0
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser(description="Sniff traffic on a network interface and send it to BHOREAL MIDI controller")
