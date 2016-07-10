@@ -65,9 +65,16 @@ def print_summary(pkt):
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser(description="Sniff traffic on a network interface and send it to BHOREAL MIDI controller")
+    parse.add_argument("-l", "--list-devices",  help="list usable MIDI devices", action="store_true")
     parse.add_argument("-i", "--interface", help="network interface to be sniffed", default="en0")
     parse.add_argument("-d", "--device", help="MIDI device", default="Arduino Leonardo")
     args = parse.parse_args()
+
+    if args.list_devices:
+        print "Available MIDI devices:"
+        for i in mido.get_output_names():
+            print i
+        sys.exit(0)
 
     try:
         outport = mido.open_output(args.device)
